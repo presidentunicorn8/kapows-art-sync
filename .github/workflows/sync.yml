@@ -2,12 +2,14 @@ name: Sync Art Gallery
 
 on:
   schedule:
-    - cron: '0 0 * * *' # Runs daily at midnight UTC
-  workflow_dispatch: # Allows manual trigger from GitHub UI
+    - cron: '0 0 * * *'
+  workflow_dispatch:
 
 jobs:
   sync:
     runs-on: ubuntu-latest
+    environment: sync # <-- Added to access environment-scoped secrets
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -16,6 +18,12 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+
+      - name: Ensure gallery.json exists
+        run: |
+          if [ ! -f gallery.json ]; then
+            echo "[]" > gallery.json
+          fi
 
       - name: Sync Gallery from Discord
         env:
